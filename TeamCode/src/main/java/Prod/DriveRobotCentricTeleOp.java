@@ -1,4 +1,4 @@
-package OpModes;
+package Prod;
 
 // ... остальные импорты и объявления
 
@@ -26,7 +26,7 @@ public class DriveRobotCentricTeleOp extends LinearOpMode {
 
     ElapsedTime elapsedTimer = new ElapsedTime();
 
-    private Motor extendoMotor = null;
+    private Motor  extendoMotor = null;
     PIDController extendoPidController = new PIDController(0.01, 0, 0);
 
     public static double extendoTargetPosition = 0;
@@ -39,6 +39,8 @@ public class DriveRobotCentricTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
+
         vision = new VisionController();
         vision.initialize(hardwareMap, false, false);
 

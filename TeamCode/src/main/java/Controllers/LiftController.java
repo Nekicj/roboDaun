@@ -39,6 +39,7 @@ public class LiftController {
 
     public static double target = Position.HOME.getPos();
     public static double liftTargetChangeSpeed = 3000;
+    public static double tolerance = 20;
     ElapsedTime elapsedTimer = new ElapsedTime();
 
 
@@ -97,6 +98,11 @@ public class LiftController {
 
     public double getCurrentPosition(){
         return target;
+    }
+
+    public boolean isAtPosition() {
+        return Math.abs(leftLift.getCurrentPosition() - target) < tolerance
+                && Math.abs(rightLift.getCurrentPosition() - target) < tolerance;
     }
 
 

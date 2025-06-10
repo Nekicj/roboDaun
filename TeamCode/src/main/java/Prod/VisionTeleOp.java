@@ -1,4 +1,4 @@
-package OpModes;
+package Prod;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import Controllers.VisionController;
-import Config.VisionConfig;
+
 @Config
 @TeleOp(name = "Vision TeleOp",group = "Concept")
 public class VisionTeleOp extends LinearOpMode {
