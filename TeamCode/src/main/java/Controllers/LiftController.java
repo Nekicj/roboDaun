@@ -5,8 +5,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gam
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,8 +14,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config
 public class LiftController {
     // HARDWARE ====================================================================================
-    private DcMotorEx leftLift = null;
-    private DcMotorEx rightLift = null;
+    private Motor leftLift = null;
+    private Motor rightLift = null;
     PIDController leftLiftPidController = new PIDController(0.01, 0, 0);
     PIDController rightLiftPidController = new PIDController(0.01, 0, 0);
 
@@ -45,22 +44,22 @@ public class LiftController {
 
 
     public void initialize(HardwareMap hardwareMap){
-        leftLift = hardwareMap.get(DcMotorEx.class,"Llift");
-        rightLift = hardwareMap.get(DcMotorEx.class,"Rlift");
+        leftLift = new Motor(hardwareMap,"Llift",560,1200);
+        rightLift = new Motor(hardwareMap, "Rlift", 560,1200);
 
-        leftLift.setDirection(DcMotorEx.Direction.REVERSE);
-        rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftLift.setInverted(true);
+        rightLift.setInverted(false);
 
-        //leftLift.setRunMode(Motor.RunMode.RawPower);
-        //rightLift.setRunMode(Motor.RunMode.RawPower);
+        leftLift.setRunMode(Motor.RunMode.RawPower);
+        rightLift.setRunMode(Motor.RunMode.RawPower);
 
-        //leftLift.resetEncoder();
-        //rightLift.resetEncoder();
+        leftLift.resetEncoder();
+        rightLift.resetEncoder();
 
-        leftLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rightLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        leftLift.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        //leftLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        //rightLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        //leftLift.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        //rightLift.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         elapsedTimer.reset();
     }
@@ -88,8 +87,8 @@ public class LiftController {
         double rightLiftCurrent = rightLift.getCurrentPosition();
         double rightLiftPower = rightLiftPidController.calculate(rightLiftCurrent, target);
 
-        leftLift.setPower(leftLiftPower);
-        rightLift.setPower(rightLiftPower);
+        leftLift.set(leftLiftPower);
+        rightLift.set(rightLiftPower);
     }
 
     public void setTargetPosition(double targetPosition){
