@@ -31,7 +31,7 @@ public class LiftController {
         }
         private int position;
 
-        public int getPos() {
+        public double getPos() {
             return position;
         }
 
