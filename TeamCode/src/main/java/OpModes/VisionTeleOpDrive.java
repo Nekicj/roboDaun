@@ -18,7 +18,6 @@ public class VisionTeleOpDrive extends LinearOpMode {
     private Motor extendoMotor;
     private PIDController extendoPidController = new PIDController(0.01, 0, 0);
 
-    // Конфигурационные параметры
     public static double CENTERING_SPEED = 0.4;    // Скорость коррекции
     public static double PIXEL_TO_POS_RATIO = 2.5; // Пиксели -> позиция мотора
     public static double MAX_EXTENDO_POS = 2100;   // Максимальная позиция
@@ -29,11 +28,9 @@ public class VisionTeleOpDrive extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        // Инициализация зрения
         vision = new VisionController();
         vision.initialize(hardwareMap, false, false);
 
-        // Инициализация экстендера
         extendoMotor = new Motor(hardwareMap, "extendo", Motor.GoBILDA.RPM_312);
         extendoMotor.setInverted(false);
         extendoMotor.setRunMode(Motor.RunMode.RawPower);
@@ -50,10 +47,9 @@ public class VisionTeleOpDrive extends LinearOpMode {
             double elapsedTime = elapsedTimer.milliseconds() / 1000.0;
             elapsedTimer.reset();
 
-            // Ручное управление
             handleManualControl(elapsedTime);
 
-            // Автоматическая коррекция
+            // auto correct
             VisionController.BlobInfo blob = vision.getBiggestBlobInfo(
                     multiTelemetry, true, false, false);
 
@@ -61,10 +57,8 @@ public class VisionTeleOpDrive extends LinearOpMode {
                 updateExtendoPosition(blob);
             }
 
-            // Обновление мотора
             updateExtendoMotor();
 
-            // Телеметрия
             updateTelemetry(multiTelemetry, blob);
         }
     }
