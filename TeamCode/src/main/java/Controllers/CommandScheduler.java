@@ -100,6 +100,11 @@ public class CommandScheduler {
         delayEndTime = 0;
     }
 
+    public void stopAll(){
+        stop();
+        clearQueue();
+    }
+
     public void setAutoReset(boolean autoReset) {
         this.autoReset = autoReset;
     }

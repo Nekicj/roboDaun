@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import Controllers.VisionController;
 
 @Config
-@TeleOp
+@TeleOp(name="Robot Centric", group = "Concept")
 public class DriveRobotCentricTeleOp extends LinearOpMode {
     private VisionController vision;
     private DcMotor frontLeft;

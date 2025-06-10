@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@TeleOp(name = "Lift PID Test", group = "Linear OpMode")
+@TeleOp(name = "Lift PID Test", group = "Concept")
 public class LiftTester extends LinearOpMode {
 
     // ===== Параметры PID =====

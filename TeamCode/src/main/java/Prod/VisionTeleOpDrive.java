@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import Controllers.VisionController;
 
 @Config
-@TeleOp(name = "Auto Extendo Centering", group = "Competition")
+@TeleOp(name = "Auto Extendo Centering", group = "Concept")
 public class VisionTeleOpDrive extends LinearOpMode {
     private VisionController vision;
     private Motor extendoMotor;
