@@ -12,10 +12,11 @@ import Controllers.ActionsController;
 import Controllers.OuttakeController;
 
 @Config
-@TeleOp(name = "Main Teleop",group = "Competition")
-public class AlohaTeleop extends LinearOpMode {
+@TeleOp(name = "SRS",group = "Prod")
+public class SRS extends LinearOpMode {
     private ActionsController actionsController;
     private OuttakeController outtakeController;
+    private OuttakeController servocontroller;
     private GamepadEx driver1;
 
     @Override
@@ -24,8 +25,10 @@ public class AlohaTeleop extends LinearOpMode {
         driver1 = new GamepadEx(gamepad1);
         actionsController = new ActionsController(hardwareMap);
         outtakeController = new OuttakeController();
+        servocontroller= new OuttakeController();
 
         outtakeController.initialize(hardwareMap,"OuttakeClaw",true);
+        servocontroller.initialize(hardwareMap,"Servo1",false);
         telemetry.addData("Status, ","Initialized");
         waitForStart();
         while (opModeIsActive()){
@@ -33,12 +36,15 @@ public class AlohaTeleop extends LinearOpMode {
 
             if (driver1.wasJustPressed(GamepadKeys.Button.B)){
                 outtakeController.setClawPosition(0);
+                servocontroller.setClawPosition(0);
             }
             else if(driver1.wasJustPressed(GamepadKeys.Button.A)){
                 outtakeController.setClawPosition(1);
+                servocontroller.setClawPosition(1);
             }
             else if(driver1.wasJustPressed(GamepadKeys.Button.X)){
                 outtakeController.setClawPosition(0.5);
+                servocontroller.setClawPosition(0.5);
             }
             actionsController.update();
 

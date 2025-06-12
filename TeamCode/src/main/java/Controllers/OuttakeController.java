@@ -9,8 +9,8 @@ public class OuttakeController {
     private Servo claw = null;
 
     public enum Servos{
-        CLAW_OPEN(0.7),
-        CLAW_CLOSE(0.5);
+        CLAW_OPEN(0),
+        CLAW_CLOSE(1);
 
         private final double position;
         Servos(double pos) {this.position = pos;}
@@ -20,15 +20,16 @@ public class OuttakeController {
 
     }
 
-    public void initialize(HardwareMap hardwareMap){
-        initialize(hardwareMap,false);
+    public void initialize(HardwareMap hardwareMap, String servoName,boolean isReversed){
+        initialize(hardwareMap,servoName,isReversed,false);
     }
 
-    public void initialize(HardwareMap hardwareMap, boolean isClawOpen){
-        claw = hardwareMap.get(Servo.class,"OuttakeClaw");
-        claw.setDirection(Servo.Direction.FORWARD);
+    public void initialize(HardwareMap hardwareMap,String servoName,boolean isReversed ,boolean isClawOpen){
+        claw = hardwareMap.get(Servo.class,servoName);
+        if (isReversed){claw.setDirection(Servo.Direction.REVERSE);}else {claw.setDirection(Servo.Direction.FORWARD);}
 
-        if (!isClawOpen) claw.setPosition(Servos.CLAW_OPEN.getPos());
+
+        if (!isClawOpen) claw.setPosition(Servos.CLAW_CLOSE.getPos());
 
     }
 
@@ -41,7 +42,7 @@ public class OuttakeController {
     }
 
 
-
+    public void setClawPosition(double servoPosition){claw.setPosition(servoPosition);}
     public double getPosition(){
         return claw.getPosition();
     }

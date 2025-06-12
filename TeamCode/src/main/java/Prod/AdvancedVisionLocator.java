@@ -33,7 +33,6 @@ public class AdvancedVisionLocator extends LinearOpMode {
     public static int BLUR_SIZE = 7;
     public static int ANGLE_BUFFER = 10;
 
-    // Исправление: Используем публичные поля вместо getWidth()/getHeight()
     private static final Size RESOLUTION = new Size(320, 240);
     private final LinkedList<Double> angleHistory = new LinkedList<>();
     private double normalAngle = 0;

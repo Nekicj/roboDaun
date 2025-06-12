@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class ActionsController {
-    private final LiftController liftController;
+    //private final LiftController liftController;
     private final OuttakeController outtakeController;
 
     private final CommandScheduler BusketScheduler = new CommandScheduler();
@@ -14,27 +14,35 @@ public class ActionsController {
     private final ElapsedTime actionTimer = new ElapsedTime();
 
     public ActionsController(HardwareMap hardwareMap){
-        liftController = new LiftController();
+        //liftController = new LiftController();
         outtakeController = new OuttakeController();
 
-        liftController.initialize(hardwareMap);
-        outtakeController.initialize(hardwareMap);
+        //liftController.initialize(hardwareMap);
+        outtakeController.initialize(hardwareMap,"OuttakeClaw",true);
     }
 
     public void update(){
-        liftController.update();
+        //liftController.update();
         BusketScheduler.update();
     }
 
     public void toBusket(){
+        if (BusketScheduler.isRunning()) return;
 
         BusketScheduler.clearQueue();
-        BusketScheduler.setAutoReset(true);
+        BusketScheduler.setAutoReset(false);
 
-        BusketScheduler.scheduleCommand(() -> {liftController.setTargetPosition(500);});
-        BusketScheduler.scheduleDelay(0.2);
-        //BusketScheduler.scheduleCommand(() -> {outtakeController.setClawOpen();});
+        BusketScheduler.scheduleCommand(outtakeController::setClawClose);
+        BusketScheduler.scheduleDelay(1);
         BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
+        BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
+        BusketScheduler.scheduleDelay(1);
+        BusketScheduler.scheduleCommand(outtakeController::setClawClose);
+        BusketScheduler.scheduleCommand(outtakeController::setClawClose);
+        BusketScheduler.scheduleDelay(1);
+        BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
+        BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
+        BusketScheduler.scheduleDelay(1);
 
         BusketScheduler.start();
 
@@ -43,7 +51,7 @@ public class ActionsController {
 
 
     public boolean isBusy() {
-        return BusketScheduler.isFinished();
+        return BusketScheduler.isRunning();
     }
 
 

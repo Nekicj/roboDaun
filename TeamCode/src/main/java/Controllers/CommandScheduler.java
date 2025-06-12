@@ -4,58 +4,38 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- COMMAND SCHEDULE FOR MULTIPLE ACTIONS WITHOUT STOPPING THE CYCLE BEKASOSI
- before start the action you should add all of your actions to the schedule, then start with resetting the timer
-*/
-
-/**
-
-    if (driver1.X) {
-    scheduler.scheduleCommand(() -> LiftController.setTarget(300));
-    scheduler.scheduleDelay(0.5);
-    scheduler.scheduleCommand(() -> LiftController.setTarget(0));
-    scheduler.start();
-    }
-
-    scheduler.update();
-    LiftController.update();
-
- */
-
-// FOR PERIODIC ACTIONS
-/**
-
-    CommandScheduler backgroundScheduler = new CommandScheduler();
-    backgroundScheduler.setAutoReset(false); // НЕ ОЧИЩАТЬ ОЧЕРЕДЬ
-
-    backgroundScheduler.scheduleCommand(() -> {
-    checkBattery();
-    backgroundScheduler.scheduleDelay(2.0);
-    });
-    backgroundScheduler.start();
-
- */
-
 public class CommandScheduler {
     private final Queue<Runnable> commandQueue = new LinkedList<>();
     private final ElapsedTime timer = new ElapsedTime();
     private double delayEndTime = 0;
     private boolean isRunning = false;
+    private boolean isDelayActive = false;
 
-    private boolean autoReset = true; // AUTO CLEAN THE QUE BEFORE AT STARTUP
-
+    private boolean autoReset = true;
 
     public void scheduleCommand(Runnable command) {
         commandQueue.add(command);
     }
 
     public void scheduleDelay(double seconds) {
-        commandQueue.add(() -> delayEndTime = timer.seconds() + seconds);
+        commandQueue.add(() -> {
+            delayEndTime = timer.seconds() + seconds;
+            isDelayActive = true;
+        });
     }
 
     public void update() {
         if (!isRunning || commandQueue.isEmpty()) return;
+
+        // Обработка активной задержки
+        if (isDelayActive) {
+            if (timer.seconds() >= delayEndTime) {
+                isDelayActive = false;
+                commandQueue.remove();
+            } else {
+                return;
+            }
+        }
 
         Runnable currentCommand = commandQueue.peek();
         if (currentCommand == null) {
@@ -63,32 +43,21 @@ public class CommandScheduler {
             return;
         }
 
-        // DEAD DELAY TIME
-        if (delayEndTime > 0) {
-            if (timer.seconds() >= delayEndTime) {
-                delayEndTime = 0;
-                commandQueue.remove();
-            }
-        }
-        // DEFAULT COMMAND
-        else {
-            try{
-                currentCommand.run();
-            } catch (Exception e) {
-                return;
-            }
-            commandQueue.remove();
-        }
+        currentCommand.run();
+        commandQueue.remove();
 
-        if (commandQueue.isEmpty()) {stop();}
+        if (isDelayActive) {
+            return;
+        }
     }
 
     public void start() {
-        if (autoReset){
+        if (autoReset) {
             clearQueue();
         }
         timer.reset();
         isRunning = true;
+        isDelayActive = false;
     }
 
     public void stop() {
@@ -98,18 +67,18 @@ public class CommandScheduler {
     public void clearQueue() {
         commandQueue.clear();
         delayEndTime = 0;
-    }
-
-    public void stopAll(){
-        stop();
-        clearQueue();
+        isDelayActive = false;
     }
 
     public void setAutoReset(boolean autoReset) {
         this.autoReset = autoReset;
     }
 
-    public boolean isFinished() {
-        return !isRunning && commandQueue.isEmpty();
+    public boolean isRunning() {
+        return isRunning && !commandQueue.isEmpty();
+    }
+
+    public boolean isDelayActive() {
+        return isDelayActive;
     }
 }

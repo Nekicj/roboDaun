@@ -16,8 +16,12 @@ public class LiftController {
     // HARDWARE ====================================================================================
     private Motor leftLift = null;
     private Motor rightLift = null;
-    PIDController leftLiftPidController = new PIDController(0.01, 0, 0);
-    PIDController rightLiftPidController = new PIDController(0.01, 0, 0);
+
+    public static double kP = 0.02;
+    public static double kD = 0;
+    public static double kI = 0.001;
+    PIDController leftLiftPidController = new PIDController(kP, kI, kD);
+    PIDController rightLiftPidController = new PIDController(kP, kI , kD);
 
     // VARIABLES ===================================================================================
 
@@ -44,11 +48,11 @@ public class LiftController {
 
 
     public void initialize(HardwareMap hardwareMap){
-        leftLift = new Motor(hardwareMap,"Llift",560,1200);
-        rightLift = new Motor(hardwareMap, "Rlift", 560,1200);
+        leftLift = new Motor(hardwareMap,"Llift");
+        rightLift = new Motor(hardwareMap, "Rlift");
 
-        leftLift.setInverted(true);
-        rightLift.setInverted(false);
+        leftLift.setInverted(false);
+        rightLift.setInverted(true);
 
         leftLift.setRunMode(Motor.RunMode.RawPower);
         rightLift.setRunMode(Motor.RunMode.RawPower);

@@ -2,105 +2,96 @@ package Prod;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@TeleOp(name = "Lift PID Test", group = "Concept")
+@TeleOp(name = "Lift PID Fixed", group = "Concept")
 public class LiftTester extends LinearOpMode {
 
-    // ===== Параметры PID =====
-    public static double kP = 0.03;
-    public static double kI = 0.000;
-    public static double kD = 0.002;
+    public static double kP = 0.02;
+    public static double kG = 0.12;
+    public static double kI = 0.001;
+    public static double kD = 0;
 
-    // ===== Целевая позиция =====
     public static double liftTargetPosition = 0;
+    public static double maxPosition = 650;
+    public static double liftTargetChangeSpeed = 2000;
 
-    // Скорость изменения цели (триггерами)
-    public static double liftTargetChangeSpeed = 1000; // ticks per second
-
-    // ===== Приватные поля =====
-    private DcMotorEx leftLift;
-    private DcMotorEx rightLift;
-
-    private PIDController leftPID = new PIDController(kP, kI, kD);
-    private PIDController rightPID = new PIDController(kP, kI, kD);
-
+    private Motor leftLift, rightLift;
+    PIDController leftLiftPidController = new PIDController(kP, kI, kD);
+    PIDController rightLiftPidController = new PIDController(kP, kI , kD);
     private ElapsedTime timer = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
+        leftLift = new Motor(hardwareMap, "Llift");
+        rightLift = new Motor(hardwareMap, "Rlift");
 
-        // ===== Инициализация моторов =====
-        leftLift = hardwareMap.get(DcMotorEx.class, "Llift");
-        rightLift = hardwareMap.get(DcMotorEx.class, "Rlift");
+        leftLift.setInverted(false);
+        rightLift.setInverted(true);
 
-        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftLift.resetEncoder();
+        rightLift.resetEncoder();
 
-        leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftLift.setRunMode(Motor.RunMode.RawPower);
+        rightLift.setRunMode(Motor.RunMode.RawPower);
 
         waitForStart();
-        timer.reset();
 
         while (opModeIsActive()) {
-
-            // Обновляем PID параметры каждый цикл (для Dashboard)
-            leftPID.setPID(kP, kI, kD);
-            rightPID.setPID(kP, kI, kD);
-
-            // ===== Управление целевой позицией через триггеры =====
-            double deltaTime = timer.seconds();
+            double elapsedTime = timer.seconds();
             timer.reset();
 
-            double triggerInput = gamepad2.right_trigger - gamepad2.left_trigger;
-            liftTargetPosition += triggerInput * liftTargetChangeSpeed * deltaTime;
+            double liftPower = 0;
 
-            // Ограничение целевой позиции (например, 0–3000)
-            liftTargetPosition = Math.max(0, Math.min(liftTargetPosition, 3000));
+            if (gamepad2.left_trigger > 0)
+                liftPower = -1;
+            if (gamepad2.right_trigger > 0)
+                liftPower = 1;
 
-            // ===== Получение текущих позиций =====
-            double leftPos = leftLift.getCurrentPosition();
-            double rightPos = rightLift.getCurrentPosition();
+            if (liftTargetPosition < 0 && !gamepad2.back)
+                liftTargetPosition = 0;
+            else if (liftTargetPosition > maxPosition)
+                liftTargetPosition = maxPosition;
 
-            // ===== Расчёт PID =====
-            double leftPower = leftPID.calculate(leftPos, liftTargetPosition);
-            double rightPower = rightPID.calculate(rightPos, liftTargetPosition);
+            if (gamepad1.b){
+                liftTargetPosition = 650;
+            }
 
-            // ===== Anti-deadzone (опционально) =====
-            leftPower = applyMinimumPower(leftPower, 0.05);
-            rightPower = applyMinimumPower(rightPower, 0.05);
+            //if (gamepad2.options){
+            //    rightLift.resetEncoder();
+            //    leftLift.resetEncoder();
+            //    liftTargetPosition = 0;
+            //}
 
-            // ===== Применение мощности =====
-            leftLift.setPower(leftPower);
-            rightLift.setPower(rightPower);
+            liftTargetPosition += elapsedTime * liftPower * liftTargetChangeSpeed;
 
-            // ===== Телеметрия =====
+            double leftLiftCurrent = leftLift.getCurrentPosition();
+            double leftLiftPower = leftLiftPidController.calculate(leftLiftCurrent, liftTargetPosition);
+
+            double rightLiftCurrent = rightLift.getCurrentPosition();
+            double rightLiftPower = rightLiftPidController.calculate(rightLiftCurrent, liftTargetPosition);
+
+            leftLift.set(-leftLiftPower);
+            rightLift.set(rightLiftPower);
+
             telemetry.addData("Target", liftTargetPosition);
-            telemetry.addData("Left Pos", leftPos);
-            telemetry.addData("Right Pos", rightPos);
-            telemetry.addData("Left Power", leftPower);
-            telemetry.addData("Right Power", rightPower);
+            telemetry.addData("Left Pos", leftLift.getCurrentPosition());
+            telemetry.addData("Right Pos", rightLift.getCurrentPosition());
+            telemetry.addData("Left Power", leftLiftPower);
+            telemetry.addData("Right Power", rightLiftPower);
+            telemetry.addData("kP", kP);
+            telemetry.addData("kG (gravity feedforward)", kG);
             telemetry.update();
         }
     }
 
-    private double applyMinimumPower(double power, double min) {
-        if (Math.abs(power) < min && Math.abs(liftTargetPosition - leftLift.getCurrentPosition()) > 10) {
-            return Math.copySign(min, power);
-        }
-        return power;
+    private void resetEncoders() {
+        leftLift.resetEncoder();
+        rightLift.resetEncoder();
+        liftTargetPosition = 0;
     }
 }
