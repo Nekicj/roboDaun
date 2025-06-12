@@ -9,8 +9,13 @@ public class ActionsController {
     //TIME VARIABLES ===============================================================================
 
     //  00Intake00
-    public static double INTAKE_TIME_DOWN = 0.04;
+    public static double INTAKE_TIME_DOWN = 0.06;
     public static double INTAKE_TIME_TAKE = 0.06;
+
+    //  00Transfer
+    public static double TRANSFER_TO_TRANS = 0.8;
+    public static double TRANSFER_TO_TAKE_SAMPLE = 0.5;
+
 
     //==============================================================================================
 
@@ -24,6 +29,7 @@ public class ActionsController {
 
     private final CommandScheduler outtakeScheduler = new CommandScheduler();
     private final CommandScheduler intakeScheduler = new CommandScheduler();
+    private final CommandScheduler transferSchedule = new CommandScheduler();
 
     private final ElapsedTime actionTimer = new ElapsedTime();
 
@@ -58,6 +64,7 @@ public class ActionsController {
         liftController.update();
         outtakeScheduler.update();
         intakeScheduler.update();
+        transferSchedule.update();
     }
 
     public void toTakeSpecimen(){
@@ -115,16 +122,39 @@ public class ActionsController {
     }
 
     public void setTransfer(){
-        intakeScheduler.clearQueue();
-        intakeScheduler.setAutoReset(false);
+        transferSchedule.clearQueue();
+        transferSchedule.setAutoReset(false);
 
-        intakeScheduler.scheduleCommand(intakeController::setIntakeToTransfer);
-        intakeScheduler.scheduleCommand(()->intakeController.setIntakeClawPosition(IntakeController.Servos.INTAKE_CLAW_ROTATE_4.getPos()));
-        intakeScheduler.scheduleCommand(outtakeController::setOuttakeToTransfer);
-        intakeScheduler.scheduleCommand(outtakeController::setClawOpen);
-        intakeScheduler.scheduleCommand(() -> liftController.setTargetPosition(0));
+        transferSchedule.scheduleCommand(outtakeController::setOuttakeToTransfer);
+        transferSchedule.scheduleCommand(outtakeController::setClawOpen);
+        transferSchedule.scheduleCommand(() -> liftController.setTargetPosition(0));
 
-        intakeScheduler.start();
+        transferSchedule.start();
+    }
+
+    public void setTransferNBusket(){
+        transferSchedule.clearQueue();
+        transferSchedule.setAutoReset(false);
+
+        transferSchedule.scheduleCommand(intakeController::setIntakeToTransfer);
+        transferSchedule.scheduleCommand(()->intakeController.setClawRotatePosition(IntakeController.Servos.INTAKE_CLAW_ROTATE_4.getPos()));
+        transferSchedule.scheduleCommand(outtakeController::setOuttakeToTransfer);
+        transferSchedule.scheduleCommand(outtakeController::setClawOpen);
+        transferSchedule.scheduleCommand(() -> liftController.setTargetPosition(0));
+
+        transferSchedule.scheduleDelay(TRANSFER_TO_TRANS);
+        transferSchedule.scheduleCommand(intakeController::setClawOpen);
+
+        transferSchedule.scheduleCommand(intakeController::setClawOpen);
+        transferSchedule.scheduleCommand(outtakeController::setClawClose);
+
+        transferSchedule.scheduleDelay(TRANSFER_TO_TAKE_SAMPLE);
+
+        transferSchedule.scheduleCommand(outtakeController::setOuttakeToBusket);
+        transferSchedule.scheduleCommand(()->liftController.setTargetPosition(LiftController.Position.MAX.getPos()));
+
+
+        transferSchedule.start();
     }
 
     public void setClaws(boolean isIntakeOpen){

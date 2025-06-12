@@ -15,6 +15,8 @@ public class OuttakeController {
         OUTTAKE_TAKE_SPECIMEN(0.92),
         OUTTAKE_PUSH_SPECIMEN(0.22),
 
+        OUTTAKE_PUSH_BUSKET(0.5),
+
         CLAW_OPEN(0.3),
         CLAW_CLOSE(0.6),
 
@@ -83,6 +85,11 @@ public class OuttakeController {
         armLeft.setPosition(Servos.OUTTAKE_PUSH_SPECIMEN.getPos());
         armRight.setPosition(Servos.OUTTAKE_PUSH_SPECIMEN.getPos());
         clawRotate.setPosition(Servos.CLAW_ROTATE_TRANSFER.getPos());
+    }
+
+    public void setOuttakeToBusket(){
+        armLeft.setPosition(Servos.OUTTAKE_PUSH_BUSKET.getPos());
+        armRight.setPosition(Servos.OUTTAKE_PUSH_BUSKET.getPos());
     }
 
 

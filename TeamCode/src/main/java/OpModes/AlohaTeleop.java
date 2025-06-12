@@ -62,13 +62,16 @@ public class AlohaTeleop extends LinearOpMode {
             if (driver1.wasJustPressed(GamepadKeys.Button.X)){
                 if (!isExtended){
                     actionsController.toIntakeAim();
+                    actionsController.setTransfer();
                     extendLenght = ExtendController.Positions.EXTEND_MAX.getPos();
                     isExtended = true;
+
                 }else{
                     isExtended = false;
-                    actionsController.setTransfer();
+                    actionsController.setTransferNBusket();
                     extendLenght = 0;
                 }
+
             }else if (driver1.wasJustPressed(GamepadKeys.Button.A) && isExtended){
                 if(!isIntakeTaken){
                     actionsController.toIntakeTake();
@@ -94,9 +97,9 @@ public class AlohaTeleop extends LinearOpMode {
 
 
 
-            if (driver1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)){
+            if (driver1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)){
                 actionsController.clawRotate(true);
-            }else if (driver1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)){
+            }else if (driver1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)){
                 actionsController.clawRotate(false);
             }
 
