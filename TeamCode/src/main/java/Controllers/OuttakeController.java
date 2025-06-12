@@ -12,16 +12,16 @@ public class OuttakeController {
     private Servo armRight = null;
 
     public static enum Servos{
-        OUTTAKE_TAKE_SPECIMEN(0.85),
-        OUTTAKE_PUSH_SPECIMEN(0.2),
+        OUTTAKE_TAKE_SPECIMEN(0.92),
+        OUTTAKE_PUSH_SPECIMEN(0.22),
 
-        CLAW_OPEN(0.65),
-        CLAW_CLOSE(0.82),
+        CLAW_OPEN(0.3),
+        CLAW_CLOSE(0.6),
 
-        CLAW_ROTATE_TAKE_SPECIMEN(0.36),
-        CLAW_ROTATE_PUSH_SPECIMEN(0.2),
+        CLAW_ROTATE_TAKE_SPECIMEN(0.95),
+        CLAW_ROTATE_PUSH_SPECIMEN(0.8),
 
-        CLAW_ROTATE_TRANSFER(0.25);
+        CLAW_ROTATE_TRANSFER(0.69);
 
 
 

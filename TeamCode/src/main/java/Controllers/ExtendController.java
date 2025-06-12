@@ -34,7 +34,14 @@ public class ExtendController {
     }
 
     public void setTargetPosition(double target){
-        extendArmRight.setPosition(target);
-        extendArmLeft.setPosition(target);
+        if(target <=Positions.EXTEND_MAX.getPos()){
+            extendArmRight.setPosition(target);
+            extendArmLeft.setPosition(target);
+        }
+        else{
+
+            extendArmRight.setPosition(Positions.EXTEND_MAX.getPos());
+            extendArmLeft.setPosition(Positions.EXTEND_MAX.getPos());
+        }
     }
 }

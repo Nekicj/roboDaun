@@ -35,13 +35,13 @@ public class IntakeController {
 
         INTAKE_ROTATE_MIDDLE(0.46),
 
-        INTAKE_CLAW_ROTATE_1(0.1),
-        INTAKE_CLAW_ROTATE_2(0.2),
-        INTAKE_CLAW_ROTATE_3(0.3),
-        INTAKE_CLAW_ROTATE_4(0.4),
-        INTAKE_CLAW_ROTATE_5(0.5),
-        INTAKE_CLAW_ROTATE_6(0.6),
-        INTAKE_CLAW_ROTATE_7(0.7);
+        INTAKE_CLAW_ROTATE_1(1),
+        INTAKE_CLAW_ROTATE_2(0.82),
+        INTAKE_CLAW_ROTATE_3(0.7),
+        INTAKE_CLAW_ROTATE_4(0.5),
+        INTAKE_CLAW_ROTATE_5(0.3),
+        INTAKE_CLAW_ROTATE_6(0.16),
+        INTAKE_CLAW_ROTATE_7(0);
 
 
         private final double position;
@@ -119,9 +119,17 @@ public class IntakeController {
             clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_4.getPos());
         }else if(clawRotateCounter == 5){
             clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_5.getPos());
-        }else if(clawRotateCounter == 7){
+        }else if(clawRotateCounter == 6){
+            clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_6.getPos());
+        }
+
+        else if(clawRotateCounter == 7){
             clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_7.getPos());
         }
+    }
+
+    public void setIntakeClawPosition(double position){
+        intakeClaw.setPosition(position);
     }
 
 

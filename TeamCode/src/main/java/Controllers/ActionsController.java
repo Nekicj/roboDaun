@@ -9,8 +9,8 @@ public class ActionsController {
     //TIME VARIABLES ===============================================================================
 
     //  00Intake00
-    public static double INTAKE_TIME_DOWN = 0.03;
-    public static double INTAKE_TIME_TAKE = 0.03;
+    public static double INTAKE_TIME_DOWN = 0.04;
+    public static double INTAKE_TIME_TAKE = 0.06;
 
     //==============================================================================================
 
@@ -119,8 +119,10 @@ public class ActionsController {
         intakeScheduler.setAutoReset(false);
 
         intakeScheduler.scheduleCommand(intakeController::setIntakeToTransfer);
+        intakeScheduler.scheduleCommand(()->intakeController.setIntakeClawPosition(IntakeController.Servos.INTAKE_CLAW_ROTATE_4.getPos()));
         intakeScheduler.scheduleCommand(outtakeController::setOuttakeToTransfer);
         intakeScheduler.scheduleCommand(outtakeController::setClawOpen);
+        intakeScheduler.scheduleCommand(() -> liftController.setTargetPosition(0));
 
         intakeScheduler.start();
     }

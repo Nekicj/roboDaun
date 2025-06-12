@@ -28,6 +28,9 @@ public class AlohaTeleop extends LinearOpMode {
 
     private boolean isBusket = false;
 
+    private double extendLenght = 0f;
+    public static double extendSpeed = 0.003;
+
     @Override
     public void runOpMode(){
 
@@ -59,16 +62,14 @@ public class AlohaTeleop extends LinearOpMode {
             if (driver1.wasJustPressed(GamepadKeys.Button.X)){
                 if (!isExtended){
                     actionsController.toIntakeAim();
-                    actionsController.setExtendTarget(ExtendController.Positions.EXTEND_MAX.getPos());
+                    extendLenght = ExtendController.Positions.EXTEND_MAX.getPos();
                     isExtended = true;
                 }else{
                     isExtended = false;
                     actionsController.setTransfer();
-                    actionsController.setExtendTarget(0);
+                    extendLenght = 0;
                 }
-            }
-
-            else if (driver1.wasJustPressed(GamepadKeys.Button.A) && isExtended){
+            }else if (driver1.wasJustPressed(GamepadKeys.Button.A) && isExtended){
                 if(!isIntakeTaken){
                     actionsController.toIntakeTake();
                     isIntakeTaken = true;
@@ -78,12 +79,21 @@ public class AlohaTeleop extends LinearOpMode {
                 }
             }
 
+            if (gamepad1.left_trigger > 0 && isExtended){
+                extendLenght -= extendSpeed;
+            }
+            if(gamepad1.right_trigger > 0 && isExtended){
+                extendLenght += extendSpeed;
+            }
+
+
             if (driver1.wasJustPressed(GamepadKeys.Button.B)){
                 isIntakeOpen = !isIntakeOpen;
                 actionsController.setClaws(isIntakeOpen);
             }
 
-            actionsController.intakeRotateControl(gamepad1.left_trigger,gamepad1.right_trigger);
+
+
             if (driver1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)){
                 actionsController.clawRotate(true);
             }else if (driver1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)){
@@ -92,10 +102,12 @@ public class AlohaTeleop extends LinearOpMode {
 
 
 
+            actionsController.setExtendTarget(extendLenght);
 
             telemetry.addData("Status", "Running");
             telemetry.addData("isTaken",isIntakeTaken);
             telemetry.addData("Action Busy", actionsController.isBusy() ? "YES" : "NO");
+            telemetry.addData("extendlength",extendLenght);
             telemetry.update();
 
             actionsController.update();
