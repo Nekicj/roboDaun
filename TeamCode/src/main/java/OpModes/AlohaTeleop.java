@@ -83,6 +83,14 @@ public class AlohaTeleop extends LinearOpMode {
                 actionsController.setClaws(isIntakeOpen);
             }
 
+            actionsController.intakeRotateControl(gamepad1.left_trigger,gamepad1.right_trigger);
+            if (driver1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)){
+                actionsController.clawRotate(true);
+            }else if (driver1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)){
+                actionsController.clawRotate(false);
+            }
+
+
 
 
             telemetry.addData("Status", "Running");

@@ -152,5 +152,13 @@ public class ActionsController {
         return outtakeScheduler.isRunning();
     }
 
+    public void intakeRotateControl(double left_trigger,double right_trigger){
+        intakeController.intakeRotateControl(left_trigger,right_trigger);
+    }
+
+    public void clawRotate(boolean up){
+        intakeController.rotateClaw(up);
+    }
+
 
 }

@@ -15,6 +15,11 @@ public class IntakeController {
     public static double INTAKE_ARM_TRANSFER_A = 1;
     public static double INTAKE_KRUTILKA_TRANSFER_A = 0.65;
 
+    public static double rotateIntakeSpeed = 0.006;
+    public static double intakeRotatePos = 0.46;
+
+    private double clawRotateCounter = 4;
+
     public static enum Servos{
         CLAW_OPEN(0.4),
         CLAW_CLOSE(0.3),
@@ -26,9 +31,17 @@ public class IntakeController {
         INTAKE_KRUTILKA_TAKE(0.08),
 
         INTAKE_ARM_TRANSFER(INTAKE_ARM_TRANSFER_A),
-        INTAKE_KRUTILKA_TRANSFER(INTAKE_KRUTILKA_TRANSFER_A);
+        INTAKE_KRUTILKA_TRANSFER(INTAKE_KRUTILKA_TRANSFER_A),
 
+        INTAKE_ROTATE_MIDDLE(0.46),
 
+        INTAKE_CLAW_ROTATE_1(0.1),
+        INTAKE_CLAW_ROTATE_2(0.2),
+        INTAKE_CLAW_ROTATE_3(0.3),
+        INTAKE_CLAW_ROTATE_4(0.4),
+        INTAKE_CLAW_ROTATE_5(0.5),
+        INTAKE_CLAW_ROTATE_6(0.6),
+        INTAKE_CLAW_ROTATE_7(0.7);
 
 
         private final double position;
@@ -45,14 +58,12 @@ public class IntakeController {
 
     public void initialize(HardwareMap hardwareMap,String clawServoName, String clawRotateName,String intakeRotateName,String intakeArmName,String intakeKrutilkaName,boolean isClawOpen){
         intakeClaw = hardwareMap.get(Servo.class,clawServoName);
-
         clawRotate = hardwareMap.get(Servo.class,clawRotateName);
-
         intakeRotate = hardwareMap.get(Servo.class,intakeRotateName);
-
         intakeArm =  hardwareMap.get(Servo.class,intakeArmName);
-
         intakeKrutilka = hardwareMap.get(Servo.class,intakeKrutilkaName);
+
+        clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_4.getPos());
 
 
         if (!isClawOpen) intakeClaw.setPosition(Servos.CLAW_CLOSE.getPos());
@@ -81,14 +92,40 @@ public class IntakeController {
     public void setIntakeToTransfer(){
         intakeArm.setPosition(Servos.INTAKE_ARM_TRANSFER.getPos());
         intakeKrutilka.setPosition(Servos.INTAKE_KRUTILKA_TRANSFER.getPos());
+        intakeRotate.setPosition(Servos.INTAKE_ROTATE_MIDDLE.getPos());
+    }
+
+    public void intakeRotateControl(double left_trigger,double right_trigger){
+        intakeRotatePos += left_trigger * rotateIntakeSpeed;
+        intakeRotatePos -= right_trigger* rotateIntakeSpeed;
+
+        intakeRotate.setPosition(intakeRotatePos);
+    }
+
+    public void rotateClaw(boolean up){
+        if (up && clawRotateCounter > 1){
+            clawRotateCounter -= 1;
+        }else if (!up && clawRotateCounter < 7){
+            clawRotateCounter +=1;
+        }
+
+        if (clawRotateCounter == 1){
+            clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_1.getPos());
+        }else if(clawRotateCounter == 2){
+            clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_2.getPos());
+        }else if(clawRotateCounter == 3){
+            clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_3.getPos());
+        }else if(clawRotateCounter == 4){
+            clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_4.getPos());
+        }else if(clawRotateCounter == 5){
+            clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_5.getPos());
+        }else if(clawRotateCounter == 7){
+            clawRotate.setPosition(Servos.INTAKE_CLAW_ROTATE_7.getPos());
+        }
     }
 
 
-
-    public void setClawPosition(double servoPosition){intakeClaw.setPosition(servoPosition);}
-    public double getPosition(){
-        return intakeClaw.getPosition();
-    }
-
+    public double getIntakeRotatePos(){return intakeRotatePos;}
+    public void setIntakeRotatePos(double position){intakeRotate.setPosition(position);}
 
 }
