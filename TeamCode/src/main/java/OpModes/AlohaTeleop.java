@@ -25,22 +25,18 @@ public class AlohaTeleop extends LinearOpMode {
         actionsController = new ActionsController(hardwareMap);
         outtakeController = new OuttakeController();
 
-        outtakeController.initialize(hardwareMap,"OuttakeClaw",true);
+        outtakeController.initialize(hardwareMap,
+                "OuttakeClaw",
+                "ClawRotate",
+                "OuttakeArmLeft",
+                "OuttakeArmRight",
+                true);
         telemetry.addData("Status, ","Initialized");
         waitForStart();
         while (opModeIsActive()){
             driver1.readButtons();
 
-            if (driver1.wasJustPressed(GamepadKeys.Button.B)){
-                outtakeController.setClawPosition(0);
-            }
-            else if(driver1.wasJustPressed(GamepadKeys.Button.A)){
-                outtakeController.setClawPosition(1);
-            }
-            else if(driver1.wasJustPressed(GamepadKeys.Button.X)){
-                outtakeController.setClawPosition(0.5);
-            }
-            actionsController.update();
+
 
             telemetry.addData("Status", "Running");
             telemetry.addData("Action Busy", actionsController.isBusy() ? "YES" : "NO");

@@ -18,7 +18,12 @@ public class ActionsController {
         outtakeController = new OuttakeController();
 
         //liftController.initialize(hardwareMap);
-        outtakeController.initialize(hardwareMap,"OuttakeClaw",true);
+        outtakeController.initialize(hardwareMap,
+                "OuttakeClaw",
+                "ClawRotate",
+                "OuttakeArmLeft",
+                "OuttakeArmRight",
+                true);
     }
 
     public void update(){

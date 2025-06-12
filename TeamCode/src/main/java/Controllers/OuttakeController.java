@@ -7,10 +7,21 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class OuttakeController {
     private Servo claw = null;
+    private Servo clawRotate = null;
+    private Servo armLeft = null;
+    private Servo armRight = null;
 
-    public enum Servos{
+    public static enum Servos{
+        OUTTAKE_TAKE_SPECIMEN(0.3),
+        OUTTAKE_PUSH_SPECIMEN(0.7),
+
         CLAW_OPEN(0),
-        CLAW_CLOSE(1);
+        CLAW_CLOSE(1),
+
+        CLAW_ROTATE_TAKE_SPECIMEN(0.3),
+        CLAW_ROTATE_PUSH_SPECIMEN(0.7);
+
+
 
         private final double position;
         Servos(double pos) {this.position = pos;}
@@ -20,12 +31,18 @@ public class OuttakeController {
 
     }
 
-    public void initialize(HardwareMap hardwareMap, String servoName,boolean isReversed){
-        initialize(hardwareMap,servoName,isReversed,false);
+    public void initialize(HardwareMap hardwareMap, String clawServoName,String clawRotateServo,String outtakeArmLeft,String outtakeArmRight,boolean isReversed){
+        initialize(hardwareMap,clawServoName,clawRotateServo,outtakeArmLeft,outtakeArmRight,isReversed,false);
     }
 
-    public void initialize(HardwareMap hardwareMap,String servoName,boolean isReversed ,boolean isClawOpen){
-        claw = hardwareMap.get(Servo.class,servoName);
+    public void initialize(HardwareMap hardwareMap,String clawServoName,String clawRotateServo,String outtakeArmLeft,String outtakeArmRight,boolean isReversed ,boolean isClawOpen){
+        claw = hardwareMap.get(Servo.class,clawServoName);
+
+        clawRotate = hardwareMap.get(Servo.class,clawRotateServo);
+
+        armLeft =  hardwareMap.get(Servo.class,outtakeArmLeft);
+        armRight = hardwareMap.get(Servo.class,outtakeArmRight);
+
         if (isReversed){claw.setDirection(Servo.Direction.REVERSE);}else {claw.setDirection(Servo.Direction.FORWARD);}
 
 

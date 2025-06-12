@@ -91,7 +91,7 @@ public class LiftController {
         double rightLiftCurrent = rightLift.getCurrentPosition();
         double rightLiftPower = rightLiftPidController.calculate(rightLiftCurrent, target);
 
-        leftLift.set(leftLiftPower);
+        leftLift.set(-leftLiftPower);
         rightLift.set(rightLiftPower);
     }
 
