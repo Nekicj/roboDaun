@@ -4,6 +4,39 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ COMMAND SCHEDULE FOR MULTIPLE ACTIONS WITHOUT STOPPING THE CYCLE BEKASOSI
+ before start the action you should add all of your actions to the schedule, then start with resetting the timer
+ */
+
+/**
+
+ if (driver1.X) {
+ scheduler.scheduleCommand(() -> LiftController.setTarget(300));
+ scheduler.scheduleDelay(0.5);
+ scheduler.scheduleCommand(() -> LiftController.setTarget(0));
+ scheduler.start();
+ }
+
+ scheduler.update();
+ LiftController.update();
+
+ */
+
+// FOR PERIODIC ACTIONS
+/**
+
+ CommandScheduler backgroundScheduler = new CommandScheduler();
+ backgroundScheduler.setAutoReset(false); // НЕ ОЧИЩАТЬ ОЧЕРЕДЬ
+
+ backgroundScheduler.scheduleCommand(() -> {
+ checkBattery();
+ backgroundScheduler.scheduleDelay(2.0);
+ });
+ backgroundScheduler.start();
+
+ */
+
 public class CommandScheduler {
     private final Queue<Runnable> commandQueue = new LinkedList<>();
     private final ElapsedTime timer = new ElapsedTime();

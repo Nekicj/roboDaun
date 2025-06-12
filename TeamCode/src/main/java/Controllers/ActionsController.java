@@ -6,16 +6,36 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class ActionsController {
+    //TIME VARIABLES ===============================================================================
+
+    //  00Intake00
+    public static double INTAKE_TIME_DOWN = 0.03;
+    public static double INTAKE_TIME_TAKE = 0.03;
+
+    //==============================================================================================
+
+
     //private final LiftController liftController;
     private final OuttakeController outtakeController;
+    private final LiftController liftController;
+    private final ExtendController extendController;
 
-    private final CommandScheduler BusketScheduler = new CommandScheduler();
+    private final IntakeController intakeController;
+
+    private final CommandScheduler outtakeScheduler = new CommandScheduler();
+    private final CommandScheduler intakeScheduler = new CommandScheduler();
 
     private final ElapsedTime actionTimer = new ElapsedTime();
 
     public ActionsController(HardwareMap hardwareMap){
         //liftController = new LiftController();
         outtakeController = new OuttakeController();
+        liftController = new LiftController();
+        intakeController = new IntakeController();
+        extendController = new ExtendController();
+
+
+        liftController.initialize(hardwareMap);
 
         //liftController.initialize(hardwareMap);
         outtakeController.initialize(hardwareMap,
@@ -23,40 +43,113 @@ public class ActionsController {
                 "ClawRotate",
                 "OuttakeArmLeft",
                 "OuttakeArmRight",
-                true);
+                false);
+        intakeController.initialize(hardwareMap,
+                "IntakeClaw",
+                "IntakeClawRotate",
+                "IntakeRotate",
+                "IntakeArm",
+                "IntakeKrutilka");
+
+        extendController.initialize(hardwareMap);
     }
 
     public void update(){
-        //liftController.update();
-        BusketScheduler.update();
+        liftController.update();
+        outtakeScheduler.update();
+        intakeScheduler.update();
     }
 
-    public void toBusket(){
-        if (BusketScheduler.isRunning()) return;
+    public void toTakeSpecimen(){
 
-        BusketScheduler.clearQueue();
-        BusketScheduler.setAutoReset(false);
+        outtakeScheduler.clearQueue();
+        outtakeScheduler.setAutoReset(false);
 
-        BusketScheduler.scheduleCommand(outtakeController::setClawClose);
-        BusketScheduler.scheduleDelay(1);
-        BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
-        BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
-        BusketScheduler.scheduleDelay(1);
-        BusketScheduler.scheduleCommand(outtakeController::setClawClose);
-        BusketScheduler.scheduleCommand(outtakeController::setClawClose);
-        BusketScheduler.scheduleDelay(1);
-        BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
-        BusketScheduler.scheduleCommand(outtakeController::setClawOpen);
-        BusketScheduler.scheduleDelay(1);
+        outtakeScheduler.scheduleCommand(()->  liftController.setTargetPosition(LiftController.Position.SPECIMEN_TAKE.getPos()));
+        outtakeScheduler.scheduleCommand(outtakeController::setOuttakeToTake);
+        outtakeScheduler.scheduleCommand(outtakeController::setClawRotateToTake);
 
-        BusketScheduler.start();
+        outtakeScheduler.start();
 
     }
 
 
+
+    public void toPushSpecimen(){
+        outtakeScheduler.clearQueue();
+        outtakeScheduler.setAutoReset(false);
+
+        outtakeScheduler.scheduleCommand(() -> liftController.setTargetPosition(LiftController.Position.SPECIMEN_PUSH.getPos()));
+        outtakeScheduler.scheduleCommand(outtakeController::setOuttakeToPush);
+        outtakeScheduler.scheduleCommand(outtakeController::setClawRotateToPush);
+
+        outtakeScheduler.start();
+    }
+
+    public void toIntakeAim(){
+        intakeScheduler.clearQueue();
+        intakeScheduler.setAutoReset(false);
+
+        intakeScheduler.scheduleCommand(intakeController::setIntakeAim);
+
+        intakeScheduler.start();
+    }
+
+    public void toIntakeTake(){
+        intakeScheduler.clearQueue();
+        intakeScheduler.setAutoReset(false);
+
+        intakeScheduler.scheduleCommand(intakeController::setIntakeTake);
+
+        intakeScheduler.scheduleDelay(INTAKE_TIME_DOWN);
+        intakeScheduler.scheduleCommand(intakeController::setIntakeTake);
+
+        intakeScheduler.scheduleCommand(intakeController::setClawClose);
+
+        intakeScheduler.scheduleDelay(INTAKE_TIME_TAKE);
+        intakeScheduler.scheduleCommand(intakeController::setClawClose);
+
+        intakeScheduler.scheduleCommand(intakeController::setIntakeAim);
+
+        intakeScheduler.start();
+    }
+
+    public void setTransfer(){
+        intakeScheduler.clearQueue();
+        intakeScheduler.setAutoReset(false);
+
+        intakeScheduler.scheduleCommand(intakeController::setIntakeToTransfer);
+        intakeScheduler.scheduleCommand(outtakeController::setOuttakeToTransfer);
+        intakeScheduler.scheduleCommand(outtakeController::setClawOpen);
+
+        intakeScheduler.start();
+    }
+
+    public void setClaws(boolean isIntakeOpen){
+        if(isIntakeOpen){
+            intakeController.setClawOpen();
+            outtakeController.setClawClose();
+        }else {
+            intakeController.setClawClose();
+            outtakeController.setClawOpen();
+        }
+    }
+
+
+    public void setIntakeClaw(boolean isOpen){
+        if (isOpen){
+            intakeController.setClawOpen();
+        }else{
+            intakeController.setClawClose();
+        }
+    }
+
+    public void setExtendTarget(double target){
+        extendController.setTargetPosition(target);
+    }
 
     public boolean isBusy() {
-        return BusketScheduler.isRunning();
+        return outtakeScheduler.isRunning();
     }
 
 
