@@ -15,6 +15,7 @@ public class ActionsController {
     //  00Transfer
     public static double TRANSFER_TO_TRANS = 0.8;
     public static double TRANSFER_TO_TAKE_SAMPLE = 0.5;
+    public static double TRANSFER_TO_ROTATE_CLAW = 1.5;
 
 
     //==============================================================================================
@@ -98,6 +99,10 @@ public class ActionsController {
         intakeScheduler.setAutoReset(false);
 
         intakeScheduler.scheduleCommand(intakeController::setIntakeAim);
+        intakeScheduler.scheduleCommand(outtakeController::setOuttakeToTransfer);
+        intakeScheduler.scheduleCommand(outtakeController::setClawOpen);
+        intakeScheduler.scheduleCommand(() -> liftController.setTargetPosition(0));
+
 
         intakeScheduler.start();
     }
@@ -149,12 +154,37 @@ public class ActionsController {
         transferSchedule.scheduleCommand(outtakeController::setClawClose);
 
         transferSchedule.scheduleDelay(TRANSFER_TO_TAKE_SAMPLE);
+        transferSchedule.scheduleCommand(outtakeController::setOuttakeToBasket);
 
-        transferSchedule.scheduleCommand(outtakeController::setOuttakeToBusket);
         transferSchedule.scheduleCommand(()->liftController.setTargetPosition(LiftController.Position.MAX.getPos()));
 
+        transferSchedule.scheduleDelay(TRANSFER_TO_ROTATE_CLAW);
+        transferSchedule.scheduleCommand(outtakeController::setOuttakeToBasket);
+
+        transferSchedule.scheduleCommand(outtakeController::setOuttakeToBasket);
 
         transferSchedule.start();
+    }
+
+    public void setIntakeToStandard(){
+        intakeScheduler.clearQueue();
+        intakeScheduler.setAutoReset(false);
+
+        intakeScheduler.scheduleCommand(intakeController::setIntakeToTransfer);
+        intakeScheduler.scheduleCommand(()->intakeController.setClawRotatePosition(IntakeController.Servos.INTAKE_CLAW_ROTATE_4.getPos()));
+
+        intakeScheduler.start();
+    }
+    public void setLiftToTransfer(){
+        outtakeScheduler.clearQueue();
+        outtakeScheduler.setAutoReset(false);
+
+        outtakeScheduler.scheduleCommand(() -> liftController.setTargetPosition(0));
+        outtakeScheduler.scheduleCommand(outtakeController::setOuttakeToTransfer);
+
+        outtakeScheduler.start();
+
+
     }
 
     public void setClaws(boolean isIntakeOpen){
